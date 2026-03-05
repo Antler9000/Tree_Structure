@@ -5,16 +5,19 @@
 
 #include "BST_using_recurse.h"	//이진 탐색 트리가 정의된 헤더파일
 #include <chrono>;				//속도 테스트용도
-#include <array>;				//..
 #include <numeric>;			//..
 #include <random>;				//..
-#include <algorithm>			//..
+#include <map>;				//..
 using namespace chrono;		//..
 
 template <typename DataType>
 void RetrieveResultPrint(const int key, const DataType retrievedData);
 
 void SpeedTest(const int speedTestRepeat);
+
+void SpeedTestBST(const int speedTestRepeat, vector<int>& testData);
+
+void SpeedComparisonTestMap(const int speedTestRepeat, vector<int>& testData);
 
 void SafetyTest(const int safetyTestRepeat);
 
@@ -186,7 +189,15 @@ int main()
 	/*
 		하나의 트리에 speedTestRepeat 횟수만큼 삽입을 수행함
 		미리 [0,speedTestRepeat-1]의 중복되지 않는 값들이 랜덤하게 뒤섞여있도록 준비하고, 이들을 하나씩 삽입하도록 함
-		작성자의 테스팅 환경에서는 safetyTestRepeat이 천만 번일 때 약 19.6초가 걸렸음
+		작성자의 테스팅 환경에서는 safetyTestRepeat이 천만 번일 때,
+		BST 삽입에 약 19.8초가 걸렸고, 비교용 std::map 삽입엔 22.3초가 걸렸음
+	*/
+
+	/*
+		다만 트리 균형이 유지되는 stl::map과 달리, 여기서 구현된 BST는 균형을 유지하지 않으므로,
+		선형 워크로드에서는 stl::map이 크게 유리할 것으로 추측함
+		여기서 구현된 트리는 재귀로 구현됨에 따라 스택 오버플로우가 발생하는 깊이 제한이 있어 (아래의 안전성 테스트 참고),
+		선형 워크로드에서의 유의미한 시간 비교를 수행할 수 없음
 	*/
 
 	const int speedTestRepeat = 10000000;
@@ -218,43 +229,86 @@ void RetrieveResultPrint(const int key, const DataType retrievedData)
 
 void SpeedTest(const int speedTestRepeat)
 {
-	BST<int> speedTestBST;
-
 	vector<int> testData(speedTestRepeat);
 	iota(testData.begin(), testData.end(), 0);
 	mt19937 rng(123456);
 	shuffle(testData.begin(), testData.end(), rng);
 
+	SpeedTestBST(speedTestRepeat, testData);
+
+	SpeedComparisonTestMap(speedTestRepeat, testData);
+
+	SpeedTestBST(speedTestRepeat, testData);
+
+	SpeedComparisonTestMap(speedTestRepeat, testData);
+}
+
+void SpeedTestBST(const int speedTestRepeat, vector<int>&testData)
+{
+	BST<int> speedTestBST;
+
 	steady_clock clock;
 
-	cout << endl << "측정 시작" << endl;
+	cout << endl << "BST 랜덤 삽입 측정 시작" << endl;
+	cout << endl << "|------------------|" << endl;
 
 	time_point<steady_clock> timeBegin = clock.now();
 
 	for (int i = 0; i < speedTestRepeat; i++)
 	{
+		if (i % (speedTestRepeat / 20) == 0) cout << "*";
+
 		speedTestBST.Insert(testData[i], testData[i]);
 	}
+	cout << endl;
 
 	time_point<steady_clock> timeEnd = clock.now();
 
-	cout << endl << "측정 종료" << endl;
+	cout << endl << "BST 랜덤 삽입 측정 종료" << endl;
 
 	duration<double> timeDiff = timeEnd - timeBegin;
 
-	cout << endl << speedTestRepeat << "번의 삽입 동안 흐른 시간은 : " << timeDiff.count() << endl;
+	cout << endl << "BST : " << speedTestRepeat << "번의 삽입 동안 흐른 시간은 : " << timeDiff.count() << endl;
+}
+
+void SpeedComparisonTestMap(const int speedTestRepeat, vector<int>& testData)
+{
+	map<int, int> speedCompareTestMap;
+
+	steady_clock clock;
+
+	time_point<steady_clock> timeBegin = clock.now();
+
+	cout << endl << "map 랜덤 삽입 측정 시작" << endl;
+	cout << endl << "|------------------|" << endl;
+
+	for (int i = 0; i < speedTestRepeat; i++)
+	{
+		if (i % (speedTestRepeat / 20) == 0) cout << "*";
+
+		speedCompareTestMap.insert(pair<int, int>(testData[i], testData[i]));
+	}
+	cout << endl;
+
+	time_point<steady_clock> timeEnd = clock.now();
+
+	cout << endl << "map 랜덤 삽입 측정 종료" << endl;
+
+	duration<double> timeDiff = timeEnd - timeBegin;
+
+	cout << endl << "map : " << speedTestRepeat << "번의 삽입 동안 흐른 시간은 : " << timeDiff.count() << endl;
 }
 
 void SafetyTest(const int safetyTestRepeat)
 {
 	BST<int> safetyTestBST;
 
-	cout << endl << "삽입 시작" << endl;
+	cout << endl << "선형 삽입 시작" << endl;
 
 	for (int i = 0; i < safetyTestRepeat; i++)
 	{
 		safetyTestBST.Insert(i, i);
 	}
 
-	cout << endl << "삽입 성공" << endl;
+	cout << endl << "선형 삽입 성공" << endl;
 }
