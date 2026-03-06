@@ -387,22 +387,29 @@ bool BST<DataType>::RemoveTarget(BST_Node<DataType>*& pRemoveTargetNode)
 template <typename DataType>
 bool BST<DataType>::ReplaceWithInorderPredecessor(BST_Node<DataType>* pRemoveTargetNode)
 {
-	BST_Node<DataType>* pPreviousPtr = NULL;
-	BST_Node<DataType>* pTraversePtr = pRemoveTargetNode->m_pLeftChild;
-	while (pTraversePtr->m_pRightChild != NULL)
+	BST_Node<DataType>* pPrevious = NULL;
+	BST_Node<DataType>* pTraverse = pRemoveTargetNode->m_pLeftChild;
+	while (pTraverse->m_pRightChild != NULL)
 	{
-		pPreviousPtr = pTraversePtr;
-		pTraversePtr = pTraversePtr->m_pRightChild;
+		pPrevious = pTraverse;
+		pTraverse = pTraverse->m_pRightChild;
 	}
 
-	if (pPreviousPtr != NULL) pPreviousPtr->m_pRightChild = pTraversePtr->m_pLeftChild;
-	else pRemoveTargetNode->m_pLeftChild = pTraversePtr->m_pLeftChild;
+	if (pPrevious != NULL)
+	{
+		pPrevious->m_pRightChild = pTraverse->m_pLeftChild;
+		pTraverse->m_pLeftChild = NULL;
+	}
+	else
+	{
+		pRemoveTargetNode->m_pLeftChild = pTraverse->m_pLeftChild;
+		pTraverse->m_pLeftChild = NULL;
+	}
 
-	pRemoveTargetNode->m_key = pTraversePtr->m_key;
-	pRemoveTargetNode->m_data = pTraversePtr->m_data;
+	pRemoveTargetNode->m_key = pTraverse->m_key;
+	pRemoveTargetNode->m_data = pTraverse->m_data;
 
-	delete pTraversePtr;
-	if (pPreviousPtr != NULL) pPreviousPtr->m_pRightChild = NULL;
+	delete pTraverse;
 
 	return true;
 }
@@ -418,14 +425,21 @@ bool BST<DataType>::ReplaceWithInorderSuccessor(BST_Node<DataType>* pRemoveTarge
 		pTraverse = pTraverse->m_pLeftChild;
 	}
 
-	if (pPrevious != NULL) pPrevious->m_pLeftChild = pTraverse->m_pRightChild;
-	else pRemoveTargetNode->m_pRightChild = pTraverse->m_pRightChild;
+	if (pPrevious != NULL)
+	{
+		pPrevious->m_pLeftChild = pTraverse->m_pRightChild;
+		pTraverse->m_pRightChild = NULL;
+	}
+	else
+	{
+		pRemoveTargetNode->m_pRightChild = pTraverse->m_pRightChild;
+		pTraverse->m_pRightChild = NULL;
+	}
 
 	pRemoveTargetNode->m_key = pTraverse->m_key;
 	pRemoveTargetNode->m_data = pTraverse->m_data;
 
 	delete pTraverse;
-	if (pPrevious != NULL) pPrevious->m_pLeftChild = NULL;
 
 	return true;
 }
