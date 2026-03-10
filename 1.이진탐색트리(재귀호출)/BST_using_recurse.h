@@ -19,9 +19,8 @@
 #define WarningPrint(statement)
 #endif
 
-#include <iostream>	//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
+#include <iostream>		//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
 #include <string>		//에러 출력 함수의 매개변수 타입으로 string 타입을 사용함
-
 using namespace std;
 
 template <typename DataType>
@@ -86,7 +85,8 @@ public:
 		return *this;
 	}
 
-	bool Insert(const int newKey, const DataType newData)
+	//값 전달로 인한 복사를 예방하기 위해 레퍼런스 인자를 사용함
+	bool Insert(const int newKey, const DataType& newData)
 	{
 		LogPrint("insert");
 
@@ -99,6 +99,23 @@ public:
 		else
 		{
 			return InsertRecurse(m_pHead, newKey, newData);
+		}
+	}
+
+	//값 전달로 인한 복사를 예방하고, 나아가 rvalue 데이터가 오는 경우에는 이동 시맨틱을 이용해 빠른 연산이 가능하도록 rvalue 레퍼런스 인자를 사용함
+	bool Insert(const int newKey, DataType&& newData)
+	{
+		LogPrint("insert");
+
+		if (m_pHead == NULL)
+		{
+			m_pHead = new BST_Node<DataType>(newKey, move(newData));
+
+			return true;
+		}
+		else
+		{
+			return InsertRecurse(m_pHead, newKey, move(newData));
 		}
 	}
 
@@ -148,7 +165,8 @@ public:
 		}
 	}
 
-	//트리의 값전달로 인한 복사가 일어나지 않도록 하기 위해서 레퍼런스 인자를 사용함
+	//트리의 값전달로 인해 복사생성자가 실행되는 것을 막기 위해 레퍼런스 인자를 사용함.
+	//복사 생성자가 호출되는 것은 성능에도 안 좋으나, 무엇보다 복사 생성자가 CopyTree(..)를 이용해 구현되어있으므로, CopyTree가 복사 생성자를 이용하면 순환 오류가 난다.
 	bool CopyTree(const BST<DataType>& sourceBST)
 	{
 		LogPrint("copy tree");
@@ -221,8 +239,14 @@ private:
 		BST_Node<DataType>* m_pLeftChild;
 		BST_Node<DataType>* m_pRightChild;
 
-		BST_Node(const int newKey, const DataType newData)
+		BST_Node(const int newKey, const DataType& newData)
 			: m_key(newKey), m_data(newData), m_pLeftChild(NULL), m_pRightChild(NULL)
+		{
+
+		}
+
+		BST_Node(const int newKey, DataType&& newData)
+			: m_key(newKey), m_data(move(newData)), m_pLeftChild(NULL), m_pRightChild(NULL)
 		{
 
 		}
@@ -236,7 +260,9 @@ private:
 
 	BST_Node<DataType>* m_pHead;
 
-	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, const DataType newData);
+	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, const DataType& newData);
+
+	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, DataType&& newData);
 
 	bool RetrieveRecurse(const BST_Node<DataType>* pSearchTargetNode, const int retrieiveTargetKey, DataType& outData);
 
@@ -259,7 +285,7 @@ private:
 };
 
 template <typename DataType>
-bool BST<DataType>::InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, const DataType newData)
+bool BST<DataType>::InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, const DataType& newData)
 {
 	if (newKey < pSearchTargetNode->m_key)
 	{
@@ -283,6 +309,41 @@ bool BST<DataType>::InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const i
 		else
 		{
 			return InsertRecurse(pSearchTargetNode->m_pRightChild, newKey, newData);
+		}
+	}
+	else
+	{
+		ErrorPrint("cannot insert because there is same key in tree already!");
+
+		return false;
+	}
+}
+
+template <typename DataType>
+bool BST<DataType>::InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, DataType&& newData)
+{
+	if (newKey < pSearchTargetNode->m_key)
+	{
+		if (pSearchTargetNode->m_pLeftChild == NULL)
+		{
+			pSearchTargetNode->m_pLeftChild = new BST_Node<DataType>(newKey, move(newData));
+			return true;
+		}
+		else
+		{
+			return InsertRecurse(pSearchTargetNode->m_pLeftChild, newKey, move(newData));
+		}
+	}
+	else if (pSearchTargetNode->m_key < newKey)
+	{
+		if (pSearchTargetNode->m_pRightChild == NULL)
+		{
+			pSearchTargetNode->m_pRightChild = new BST_Node<DataType>(newKey, move(newData));
+			return true;
+		}
+		else
+		{
+			return InsertRecurse(pSearchTargetNode->m_pRightChild, newKey, move(newData));
 		}
 	}
 	else
