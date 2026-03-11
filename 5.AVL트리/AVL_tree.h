@@ -1,7 +1,7 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
-#include "../2.이진탐색트리(반복문)/BST_using_while.h"
+#include "../0.공통/BST_using_while_template.h"
 
 class AVL_Node
 {

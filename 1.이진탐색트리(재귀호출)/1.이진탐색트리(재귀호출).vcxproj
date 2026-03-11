@@ -129,10 +129,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main_BST_using_recurse.cpp" />
+    <ClInclude Include="BST_using_recurse.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BST_using_recurse.h" />
+    <ClCompile Include="Testing_BST_using_recurse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

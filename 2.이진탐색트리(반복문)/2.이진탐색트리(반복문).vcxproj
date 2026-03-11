@@ -127,11 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BST_using_while.h" />
-    <ClInclude Include="stack.h" />
+    <ClCompile Include="Testing_BST_using_while.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main_BST_using_while.cpp" />
+    <ClInclude Include="..\0.공통\stack.h" />
+    <ClInclude Include="BST_using_while.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
