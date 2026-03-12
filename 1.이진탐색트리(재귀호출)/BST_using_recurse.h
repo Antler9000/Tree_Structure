@@ -20,8 +20,40 @@
 #endif
 
 #include <iostream>		//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
-#include <string>		//에러 출력 함수의 매개변수 타입으로 string 타입을 사용함
 using namespace std;
+
+template <typename DataType>
+class BST;
+
+template <typename DataType>
+class BST_Node
+{
+private:
+	friend class BST<DataType>;
+
+	int	m_key;
+	DataType m_data;
+	BST_Node<DataType>* m_pLeftChild;
+	BST_Node<DataType>* m_pRightChild;
+
+	BST_Node(const int newKey, const DataType& newData)
+		: m_key(newKey), m_data(newData), m_pLeftChild(NULL), m_pRightChild(NULL)
+	{
+
+	}
+
+	BST_Node(const int newKey, DataType&& newData)
+		: m_key(newKey), m_data(move(newData)), m_pLeftChild(NULL), m_pRightChild(NULL)
+	{
+
+	}
+
+	~BST_Node() noexcept
+	{
+		delete m_pLeftChild;
+		delete m_pRightChild;
+	}
+};
 
 template <typename DataType>
 class BST
@@ -228,38 +260,6 @@ public:
 	}
 
 private:
-	template <typename DataType>
-	class BST_Node
-	{
-	private:
-		friend class BST<DataType>;
-
-		int	m_key;
-		DataType	m_data;
-		BST_Node<DataType>* m_pLeftChild;
-		BST_Node<DataType>* m_pRightChild;
-
-		BST_Node(const int newKey, const DataType& newData)
-			: m_key(newKey), m_data(newData), m_pLeftChild(NULL), m_pRightChild(NULL)
-		{
-
-		}
-
-		BST_Node(const int newKey, DataType&& newData)
-			: m_key(newKey), m_data(move(newData)), m_pLeftChild(NULL), m_pRightChild(NULL)
-		{
-
-		}
-
-		~BST_Node() noexcept
-		{
-			delete m_pLeftChild;
-			delete m_pRightChild;
-		}
-	};
-
-	BST_Node<DataType>* m_pHead;
-
 	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, const DataType& newData);
 
 	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, DataType&& newData);
@@ -282,6 +282,9 @@ private:
 	void InorderPrintRecurse(const BST_Node<DataType>* pTargetNode);
 
 	void PostOrderPrintRecurse(const BST_Node<DataType>* pTargetNode);
+
+private:
+	BST_Node<DataType>* m_pHead;
 };
 
 template <typename DataType>
