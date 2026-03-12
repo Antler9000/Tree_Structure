@@ -1,4 +1,7 @@
-#include "stack.h"
+#ifndef BST_USING_WHILE_TEMPLATE_H
+#define BST_USING_WHILE_TEMPLATE_H
+
+#include "stack.h"			//반복문을 사용해서 재귀를 흉내내기 위해 스택을 사용함
 
 //이진 탐색 트리를 상속받아 더 특수화된 트리(eg. SplayTree 등)를 만들 때 내부 노드 클래스를 변경하기 쉽도록, 사용할 내부 노드 클래스를 템플릿 인자로 정의하였다.
 //따라서, 이진 탐색 트리에서 더 특수화된 트리을 정의하고 싶다면, BST_template에 자신이 정의한 새 노드 클래스를 인자로 준 것을 그것을 상속받으면 된다. (eg. class SplayTree : public BST_template<SplayNode> {};)
@@ -185,7 +188,7 @@ protected:
 
 	static void PrintTargetNode(NodeType* pTargetNode, BST_Template* pDummyArgument)
 	{
-		pTargetNode->PrintNode();
+		cout << "node m_key : " << pTargetNode->m_key << " / node m_data : " << pTargetNode->m_data << endl;
 	}
 
 	static void RemoveChilds(NodeType* pTargetNode, BST_Template* pDummyArgument)
@@ -278,3 +281,5 @@ public:
 		cout << "traverse ended" << endl << endl;
 	}
 };
+
+#endif //BST_USING_WHILE_TEMPLATE_H

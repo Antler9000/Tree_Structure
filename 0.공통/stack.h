@@ -1,7 +1,25 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <iostream>
+#ifdef TREE_LOG
+#define LogPrint(statement) cout << "(Log : " << __func__ << ") " << statement << endl
+#else
+#define LogPrint(statement)
+#endif
+
+#ifdef TREE_ERROR
+#define ErrorPrint(statement) cout << "(Error : " << __func__ << ") " << statement << endl
+#else
+#define ErrorPrint(statement)
+#endif
+
+#ifdef TREE_WARNING
+#define WarningPrint(statement) cout << "(Warning : " << __func__ << ") " << statement << endl
+#else
+#define WarningPrint(statement)
+#endif
+
+#include <iostream>		//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
 using namespace std;
 
 template <class DataType>
@@ -12,6 +30,7 @@ class StackNode
 {
 private:
 	friend class Stack<DataType>;
+
 	DataType m_data;
 	StackNode* m_pChild;
 
