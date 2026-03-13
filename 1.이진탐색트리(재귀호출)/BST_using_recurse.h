@@ -1,26 +1,9 @@
 #ifndef BST_USING_RECURSE_H
 #define BST_USING_RECURSE_H
 
-#ifdef TREE_LOG
-#define LogPrint(statement) cout << "(Log : " << __func__ << ") " << statement << endl
-#else
-#define LogPrint(statement)
-#endif
-
-#ifdef TREE_ERROR
-#define ErrorPrint(statement) cout << "(Error : " << __func__ << ") " << statement << endl
-#else
-#define ErrorPrint(statement)
-#endif
-
-#ifdef TREE_WARNING
-#define WarningPrint(statement) cout << "(Warning : " << __func__ << ") " << statement << endl
-#else
-#define WarningPrint(statement)
-#endif
-
-#include <iostream>		//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
-using namespace std;
+#include "../0.공통/debug_print.h"	//로그, 경고, 에러 등의 콘솔 출력을 위한 매크로를 사용함
+#include <iostream>					//트리를 순회하며 콘솔에 각 노드를 출력할 때 std::cout을 사용함
+using namespace std;				//이동 생성자, 할당자, 삽입 메소드에서 std::move(..)를 사용함
 
 template <typename DataType>
 class BST;

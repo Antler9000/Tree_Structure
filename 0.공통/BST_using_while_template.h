@@ -1,17 +1,136 @@
 #ifndef BST_USING_WHILE_TEMPLATE_H
 #define BST_USING_WHILE_TEMPLATE_H
 
-#include "stack.h"			//반복문을 사용해서 재귀를 흉내내기 위해 스택을 사용함
+#include "../0.공통/debug_print.h"	//로그, 경고, 에러 등의 콘솔 출력을 위한 매크로를 사용함
+#include "../0.공통/stack.h"		//스택을 통해 일부 함수 상태를 저장하여 재귀 호출을 대체하도록 함
+using namespace std;				//std::move(..)를 사용할 예정
 
-//이진 탐색 트리를 상속받아 더 특수화된 트리(eg. SplayTree 등)를 만들 때 내부 노드 클래스를 변경하기 쉽도록, 사용할 내부 노드 클래스를 템플릿 인자로 정의하였다.
-//따라서, 이진 탐색 트리에서 더 특수화된 트리을 정의하고 싶다면, BST_template에 자신이 정의한 새 노드 클래스를 인자로 준 것을 그것을 상속받으면 된다. (eg. class SplayTree : public BST_template<SplayNode> {};)
-//또한 우리가 일반적으로 사용할 이진 탐색 트리도 이 템플릿에 BST_node를 인자로 준 특수화된 경우로 class BST를 이 다음 클래스로 정의해놓았으니 그것을 사용하면 된다.
 template <class NodeType>
 class BST_Template
 {
-protected:
-	NodeType* m_pHead;
+public:
+	BST_Template() : m_pHead(NULL)
+	{
+		LogPrint("empty constructor");
+	}
 
+	BST_Template(const BST_Template<NodeType>& sourceBST)
+	{
+		LogPrint("copy constructor");
+
+		CopyTree(sourceBST);
+	}
+
+	BST_Template(BST_Template<NodeType>&& sourceBST) noexcept
+	{
+		LogPrint("move constructor");
+
+		m_pHead = sourceBST.m_pHead;
+		sourceBST.m_pHead = NULL;
+	}
+
+	~BST_Template()
+	{
+		LogPrint("destructor");
+
+		RemoveTree();
+	}
+
+	BST_Template<NodeType>& operator = (const BST_Template<NodeType >& sourceBST)
+	{
+		LogPrint("copy assignment");
+
+		if (this == &sourceBST)
+		{
+			return *this;
+		}
+
+		CopyTree(sourceBST);
+
+		return *this;
+	}
+
+	BST_Template<NodeType>& operator = (BST_Template<NodeType>&& sourceBST) noexcept
+	{
+		LogPrint("move assignment");
+
+		if (this == &sourceBST)
+		{
+			return *this;
+		}
+
+		RemoveTree();
+
+		m_pHead = sourceBST.m_pHead;
+		sourceBST.m_pHead = NULL;
+
+		return *this;
+	}
+
+	void Insert(int newKey, int newData)
+	{
+		LogPrint("insert");
+
+		NodeType* pMadeChild = Search(newKey, &BST_Template::SetDummyChild);
+		pMadeChild->m_key = newKey;
+		pMadeChild->m_data = newData;
+	}
+
+	int Retrieve(int targetKey)
+	{
+		LogPrint("retrieve");
+
+		return Search(targetKey, &BST_Template::GetT)->m_data;
+	}
+
+	void Remove(int targetKey)
+	{
+		LogPrint("remove one item");
+
+		Search(targetKey, &BST_Template::RemoveTarget);
+	}
+
+
+	void RemoveTree()
+	{
+		LogPrint("remove tree");
+
+		PostorderTraverse(&BST_Template::RemoveChilds, NULL);
+		delete m_pHead;
+		m_pHead = NULL;
+	}
+
+	//트리의 값전달로 인해 복사생성자가 실행되는 것을 막기 위해 레퍼런스 인자를 사용함.
+	//복사 생성자가 호출되는 것은 성능에도 안 좋으나, 무엇보다 복사 생성자가 CopyTree(..)를 이용해 구현되어있으므로, CopyTree가 복사 생성자를 이용하면 순환 오류가 난다.
+	void CopyTree(const BST_Template& sourceBST)
+	{
+		LogPrint("copy tree");
+
+		sourceBST.PreorderTraverse(&BST_Template::CopyNode, this);
+	}
+
+	void PreorderPrint()
+	{
+		LogPrint("preorder print");
+
+		PreorderTraverse(&BST_Template::PrintTargetNode, NULL);
+	}
+
+	void InorderPrint()
+	{
+		cout << "inorder traverse start" << endl;
+		InorderTraverse(&BST_Template::PrintTargetNode, NULL);
+		cout << "traverse ended" << endl << endl;
+	}
+
+	void PostorderPrint()
+	{
+		cout << "postorder traverse start" << endl;
+		PostorderTraverse(&BST_Template::PrintTargetNode, NULL);
+		cout << "traverse ended" << endl << endl;
+	}
+
+protected:
 	//"to_do_with_target_ptr" 메소드 포인터는 특정 target_key를 가진 노드를 가리키는 자식 포인터에 수행할 작업이나,
 	//특정 target_key 노드가 삽입될 수 있는 NULL 자식 포인터에 수행할 작업을 넘겨주는 인터페이스임.
 	//응용되는 삽입-검색-삭제에서는 부모가 자식을 가리키는 포인터 변수를 직접 수정할 수 있어야 하기에, 메소드 포인터는 레퍼런스 인자를 가짐
@@ -107,7 +226,7 @@ protected:
 
 	//"to_do_while_traverse" 함수 포인터는 전위순회로 돌면서 각 노드에 수행할 작업을 위한 인터페이스임
 	//"optional_target_BST" BST 포인터는 앞선 "to_do_while_traverse" 작업에서 대상 BST 포인터가 필요한 경우를 위한 인수임.
-	void PreorderTraverse(void (*pToDoWhileTraverse)(NodeType*, BST_Template*), BST_Template* pOptionalTargetBST)
+	void PreorderTraverse(void (*pToDoWhileTraverse)(NodeType*, BST_Template*), BST_Template* pOptionalTargetBST) const
 	{
 		if (m_pHead == NULL) return;
 
@@ -207,79 +326,17 @@ protected:
 
 	static void CopyNode(NodeType* pSourceNode, BST_Template* pDestBST)
 	{
-		pDestBST->Insert(pSourceNode);
+		pDestBST->InsertNewNode(pSourceNode);
 	}
 
-
-public:
-	BST_Template()
-	{
-		cout << "BST is being made!" << endl;
-		m_pHead = NULL;
-	}
-
-	~BST_Template()
-	{
-		cout << "BST is being removed" << endl;
-		RemoveAll();
-	}
-
-	void Insert(int newKey, int newData)
-	{
-		NodeType* pMadeChild = Search(newKey, &BST_Template::SetDummyChild);
-		pMadeChild->m_key = newKey;
-		pMadeChild->m_data = newData;
-	}
-
-	void Insert(NodeType* pNewNode)
+	void InsertNewNode(NodeType* pNewNode)
 	{
 		NodeType* pMadeChild = Search(pNewNode->m_key, &BST_Template::SetDummyChild);
 		*pMadeChild = *pNewNode;
 	}
 
-	int Retrieve(int targetKey)
-	{
-		return Search(targetKey, &BST_Template::GetT)->m_data;
-	}
-
-	void Remove(int targetKey)
-	{
-		Search(targetKey, &BST_Template::RemoveTarget);
-	}
-
-	void CopyFrom(BST_Template* pTargetBST)
-	{
-		pTargetBST->PreorderTraverse(&BST_Template::CopyNode, this);
-	}
-
-	void RemoveAll()
-	{
-		cout << "Remove all" << endl;
-		PostorderTraverse(&BST_Template::RemoveChilds, NULL);
-		delete m_pHead;
-		m_pHead = NULL;
-	}
-
-	void PreorderPrint()
-	{
-		cout << "preorder traverse start" << endl;
-		PreorderTraverse(&BST_Template::PrintTargetNode, NULL);
-		cout << "traverse ended" << endl << endl;
-	}
-
-	void InorderPrint()
-	{
-		cout << "inorder traverse start" << endl;
-		InorderTraverse(&BST_Template::PrintTargetNode, NULL);
-		cout << "traverse ended" << endl << endl;
-	}
-
-	void PostorderPrint()
-	{
-		cout << "postorder traverse start" << endl;
-		PostorderTraverse(&BST_Template::PrintTargetNode, NULL);
-		cout << "traverse ended" << endl << endl;
-	}
+protected:
+	NodeType* m_pHead;
 };
 
 #endif //BST_USING_WHILE_TEMPLATE_H

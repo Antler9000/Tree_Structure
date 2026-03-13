@@ -1,14 +1,14 @@
-//로그, 에러, 경고 콘솔 출력문들을 활성화하기 위한 전처리 상수 정의
+//디버그 출력문들을 활성화하기 위한 전처리 상수 정의
 //#define TREE_LOG	
 //#define TREE_ERROR
 //#define TREE_WARNING
 
-#include "BST_using_recurse.h"	//이진 탐색 트리가 정의된 헤더파일
-#include <chrono>;				//속도 테스트용도
-#include <numeric>;				//..
-#include <random>;				//..
-#include <map>;					//..
-using namespace chrono;			//..
+#include "BST_using_recurse.h"	//정의한 이진 탐색 트리을 테스팅함
+#include <chrono>;				//속도 테스트를 위해 사용함
+#include <numeric>;				//...
+#include <random>;				//...
+#include <map>;					//...
+using namespace chrono;			//...
 
 template <typename DataType>
 void RetrieveResultPrint(const int key, const DataType retrievedData);

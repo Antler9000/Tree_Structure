@@ -1,26 +1,8 @@
 #ifndef STACK_H
 #define STACK_H
 
-#ifdef TREE_LOG
-#define LogPrint(statement) cout << "(Log : " << __func__ << ") " << statement << endl
-#else
-#define LogPrint(statement)
-#endif
-
-#ifdef TREE_ERROR
-#define ErrorPrint(statement) cout << "(Error : " << __func__ << ") " << statement << endl
-#else
-#define ErrorPrint(statement)
-#endif
-
-#ifdef TREE_WARNING
-#define WarningPrint(statement) cout << "(Warning : " << __func__ << ") " << statement << endl
-#else
-#define WarningPrint(statement)
-#endif
-
-#include <iostream>		//에러 출력 함수와 순회 출력 함수에서 cin, cout을 사용함
-using namespace std;
+#include "../0.공통/debug_print.h"	//로그, 경고, 에러 등의 콘솔 출력을 위한 매크로를 추후 도입할 예정
+using namespace std;				//이동 시맨틱이 필요한지 판단 후 도입할 예정
 
 template <class DataType>
 class Stack;
