@@ -33,7 +33,7 @@ private:
 
 	//노드에 저장될 데이터를 인자로 명시해주는 경우에만 생성할 수 있도록 하며, 할당 또한 금지함
 	BST_Node(const BST_Node& sourceNode) = delete;
-
+	
 	BST_Node(BST_Node&& sourceNode) = delete;
 
 	BST_Node& operator = (const BST_Node& sourceNode) = delete;
@@ -136,7 +136,7 @@ public:
 		}
 	}
 
-	bool Retrieve(const int retrieveTargetKey, DataType& outData)
+	bool Retrieve(const int retrieveTargetKey, DataType& outData) const
 	{
 		LogPrint("retrieve");
 
@@ -201,7 +201,7 @@ public:
 		return CopyTreeRecurse(sourceBST.m_pHead);
 	}
 
-	void PreorderPrint()
+	void PreorderPrint() const
 	{
 		LogPrint("preorder print");
 
@@ -214,7 +214,7 @@ public:
 		PreorderPrintRecurse(m_pHead);
 	}
 
-	void InorderPrint()
+	void InorderPrint() const
 	{
 		LogPrint("inorder print");
 
@@ -227,7 +227,7 @@ public:
 		InorderPrintRecurse(m_pHead);
 	}
 
-	void PostOrderPrint()
+	void PostOrderPrint() const
 	{
 		LogPrint("postorder print");
 
@@ -245,7 +245,7 @@ private:
 
 	bool InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const int newKey, DataType&& newData);
 
-	bool RetrieveRecurse(const BST_Node<DataType>* pSearchTargetNode, const int retrieiveTargetKey, DataType& outData);
+	bool RetrieveRecurse(const BST_Node<DataType>* pSearchTargetNode, const int retrieiveTargetKey, DataType& outData) const;
 
 	bool RemoveRecurse(BST_Node<DataType>* pSearchTargetNode, const int removeTargetKey);
 
@@ -258,11 +258,11 @@ private:
 
 	bool CopyTreeRecurse(const BST_Node<DataType>* pSourceNode);
 
-	void PreorderPrintRecurse(const BST_Node<DataType>* pTargetNode);
+	void PreorderPrintRecurse(const BST_Node<DataType>* pTargetNode) const;
 
-	void InorderPrintRecurse(const BST_Node<DataType>* pTargetNode);
+	void InorderPrintRecurse(const BST_Node<DataType>* pTargetNode) const;
 
-	void PostOrderPrintRecurse(const BST_Node<DataType>* pTargetNode);
+	void PostOrderPrintRecurse(const BST_Node<DataType>* pTargetNode) const;
 
 private:
 	BST_Node<DataType>* m_pHead;
@@ -339,7 +339,7 @@ bool BST<DataType>::InsertRecurse(BST_Node<DataType>* pSearchTargetNode, const i
 }
 
 template <typename DataType>
-bool BST<DataType>::RetrieveRecurse(const BST_Node<DataType>* pSearchTargetNode, const int retrieveTargetKey, DataType& outData)
+bool BST<DataType>::RetrieveRecurse(const BST_Node<DataType>* pSearchTargetNode, const int retrieveTargetKey, DataType& outData) const
 {
 	if (retrieveTargetKey < pSearchTargetNode->m_key)
 	{
@@ -500,7 +500,7 @@ bool BST<DataType>::CopyTreeRecurse(const BST_Node<DataType>* pSourceNode)
 }
 
 template <typename DataType>
-void BST<DataType>::PreorderPrintRecurse(const BST_Node<DataType>* pTargetNode)
+void BST<DataType>::PreorderPrintRecurse(const BST_Node<DataType>* pTargetNode) const
 {
 	cout << "node m_key : " << pTargetNode->m_key << " / node m_data : " << pTargetNode->m_data << endl;
 	if (pTargetNode->m_pLeftChild != NULL) PreorderPrintRecurse(pTargetNode->m_pLeftChild);
@@ -508,7 +508,7 @@ void BST<DataType>::PreorderPrintRecurse(const BST_Node<DataType>* pTargetNode)
 }
 
 template <typename DataType>
-void BST<DataType>::InorderPrintRecurse(const BST_Node<DataType>* pTargetNode)
+void BST<DataType>::InorderPrintRecurse(const BST_Node<DataType>* pTargetNode) const
 {
 	if (pTargetNode->m_pLeftChild != NULL) InorderPrintRecurse(pTargetNode->m_pLeftChild);
 	cout << "node m_key : " << pTargetNode->m_key << " / node m_data : " << pTargetNode->m_data << endl;
@@ -516,7 +516,7 @@ void BST<DataType>::InorderPrintRecurse(const BST_Node<DataType>* pTargetNode)
 }
 
 template <typename DataType>
-void BST<DataType>::PostOrderPrintRecurse(const BST_Node<DataType>* pTargetNode)
+void BST<DataType>::PostOrderPrintRecurse(const BST_Node<DataType>* pTargetNode) const
 {
 	if (pTargetNode->m_pLeftChild != NULL) PostOrderPrintRecurse(pTargetNode->m_pLeftChild);
 	if (pTargetNode->m_pRightChild != NULL) PostOrderPrintRecurse(pTargetNode->m_pRightChild);
