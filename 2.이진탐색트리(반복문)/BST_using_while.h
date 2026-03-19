@@ -44,13 +44,13 @@ private:
 
 		m_data = sourceNode.m_data;
 		m_key = sourceNode.m_key;
-		m_pLeftChild = sourceNode.m_pLeftChild;
-		m_pRightChild = sourceNode.m_pRightChild;
+		m_pLeftChild = NULL;
+		m_pRightChild = NULL;
 
 		return *this;
 	}
 
-	BST_Node& operator = (BST_Node&& sourceNode)
+	BST_Node& operator = (BST_Node&& sourceNode) noexcept
 	{
 		if (this == &sourceNode)
 		{
@@ -81,7 +81,7 @@ private:
 
 	//일단은 재귀로 작성해두고서 빌드하려고 함
 	//추후 반복문으로 고칠 것
-	bool RemoveNode()
+	bool RemoveNode() noexcept
 	{
 		delete m_pLeftChild;
 		delete m_pRightChild;
